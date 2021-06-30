@@ -9,7 +9,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 
-public class DataBundle {
+public abstract class BaseDataBundle {
 
     private Context appContext;
     private CloudDataManager mCloudDataManager;
@@ -18,19 +18,12 @@ public class DataBundle {
 
     private ArrayList<Integer> entityKeys = new ArrayList<>();
 
-    public DataBundle(Context appContext) {
+    public BaseDataBundle(Context appContext) {
         this.appContext = appContext;
         eventBus = new EventBus();
         mCloudDataManager = new CloudDataManager(eventBus);
         mLocalDataManager = new LocalDataManager(eventBus);
-        initEntityKeys();
     }
-
-    public void initEntityKeys() {
-        entityKeys.add(249);
-        entityKeys.add(250);
-    }
-
     public Context getAppContext() {
         return appContext;
     }

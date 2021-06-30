@@ -33,6 +33,6 @@ public class NetworkSendRequest extends BaseDataRequest {
 
     @Override
     public void execute() throws Exception {
-        isSendSuccess =  mRxClientService.send(msg);
+        isSendSuccess =  mRxClientService.sendMessage(msg);
     }
 }

@@ -1,11 +1,13 @@
 package com.arvin.bracelet.common.rx.manager;
 
 import android.content.Context;
+import android.os.Debug;
 import android.util.Log;
 
 
 import com.arvin.bracelet.common.rx.RxCallback;
 import com.arvin.bracelet.common.rx.RxRequest;
+import com.arvin.bracelet.common.utils.ResManager;
 import com.arvin.bracelet.common.utils.WakeLockHolder;
 
 import java.util.ArrayList;
@@ -207,15 +209,40 @@ public final class RxManager {
                 observeOn = AndroidSchedulers.mainThread();
             }
 
+            if (appContext == null) {
+                Log.w(getClass().getSimpleName(), "Please call initAppContext first!");
+                initAppContext(ResManager.getAppContext());
+            }
+
             return new RxManager(appContext, subscribeOn, observeOn);
         }
 
+        public static RxManager sharedSingleThreadManager() {
+            return new Builder()
+                .subscribeOn(SingleThreadScheduler.scheduler())
+                .observeOn(AndroidSchedulers.mainThread())
+                .build();
+        }
+
+        public static RxManager sharedMultiThreadManager() {
+            return new Builder()
+                .subscribeOn(MultiThreadScheduler.scheduler())
+                .observeOn(AndroidSchedulers.mainThread())
+                .build();
+        }
+
         public static RxManager newSingleThreadManager() {
-            return new RxManager(appContext, SingleThreadScheduler.newScheduler(), AndroidSchedulers.mainThread());
+            return new Builder()
+                .subscribeOn(SingleThreadScheduler.newScheduler())
+                .observeOn(AndroidSchedulers.mainThread())
+                .build();
         }
 
         public static RxManager newMultiThreadManager() {
-            return new RxManager(appContext, MultiThreadScheduler.newScheduler(), AndroidSchedulers.mainThread());
+            return new Builder()
+                .subscribeOn(MultiThreadScheduler.newScheduler())
+                .observeOn(AndroidSchedulers.mainThread())
+                .build();
         }
     }
 }

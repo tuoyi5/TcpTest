@@ -1,4 +1,4 @@
-package com.arvin.bracelet;
+package com.arvin.bracelet.common.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -8,6 +8,10 @@ import java.io.File;
 import java.io.IOException;
 
 import androidx.multidex.MultiDex;
+
+/**
+ * Created by sujinlin on 2021/6/29.
+ */
 
 public class StartApplicationUtils {
 

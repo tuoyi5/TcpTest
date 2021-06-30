@@ -26,11 +26,10 @@ public class NetworkServerAction<T extends DataManager> extends DataAction {
 	public void execute() {
 		cloudDataManager = (CloudDataManager)getDataManager();
 		NetworkServerRequest request = new NetworkServerRequest(cloudDataManager);
-		cloudDataManager.submitToMulti(getContext(), request, new RxCallback() {
+		cloudDataManager.submit(getContext(), request, new RxCallback() {
 			@Override
 			public void onNext(@NonNull Object o) {
 				Log.w("arvinn", "NetworkServerAction onNext");
-				mRxServerService = request.getRxServerService();
 			}
 		});
 	}

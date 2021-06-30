@@ -3,10 +3,7 @@ package com.arvin.bracelet.common.socket.connect.client;
 
 import android.util.Log;
 
-import com.arvin.bracelet.common.socket.connect.server.RxServerHandler;
 import com.arvin.bracelet.common.socket.data.ConnectionModel;
-import com.arvin.bracelet.common.socket.utils.ChannelPipelineHelper;
-
 
 import java.nio.charset.Charset;
 
@@ -29,18 +26,23 @@ public class RxClientService {
 	private NioEventLoopGroup group;
 	private Bootstrap bootstrap;
 	private Channel channel;
-	boolean isConnect = false;
+
+	private RxClientHandler mRxClientHandler;
 
 	public void setConnectionModel(ConnectionModel connectionModel) {
 		this.connectionModel = connectionModel;
 	}
 
-	public boolean isConnect() {
-		return isConnect;
+	public void setConnectServer(RxClientHandler rxClientHandler) {
+		mRxClientHandler = rxClientHandler;
 	}
 
 	public void connectServer() {
-		android.util.Log.d("arvinn", "connectServer start: "
+		if (channel != null && channel.isActive()) {
+			android.util.Log.i("arvinn", "connectServer isActive: " + channel.isActive());
+			return;
+		}
+		android.util.Log.d("arvinn", "connectServer connectServer: "
 			+ connectionModel.getServerIP() + " port: " + connectionModel.getPort());
 		group = new NioEventLoopGroup();
 		bootstrap = new Bootstrap()
@@ -54,7 +56,7 @@ public class RxClientService {
 				protected void initChannel(SocketChannel ch) throws Exception {
 					Log.i("arvinn","正在连接中...");
 					ch.pipeline().addLast(new StringEncoder(Charset.forName("UTF-8")));
-					ch.pipeline().addLast(new RxClientHandler());
+					ch.pipeline().addLast(mRxClientHandler);
 					ch.pipeline().addLast(new ByteArrayEncoder());
 					ch.pipeline().addLast(new ChunkedWriteHandler());
 				}
@@ -63,44 +65,68 @@ public class RxClientService {
 		Log.i("arvinn","RxClientService start： " + 22222222);
 		try {
 			channel = bootstrap.connect().sync().channel();
-			isConnect = channel.isActive();
-			android.util.Log.d("arvinn", "connectServer isConnect: " + isConnect);
+			showState();
 		} catch (Exception e) {
 			Log.e("arvinn--", e.getMessage());
-			isConnect = false;
 		} finally {
-			//graceFully();
+			//closeFuture();
 		}
 	}
 
-	public void close() {
+	public void showState() {
+		if (channel == null) {
+			return;
+		}
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer.append(" isActive:").append(channel.isActive())
+			.append("; isOpen:").append(channel.isOpen())
+			.append("; isRegistered:").append(channel.isRegistered())
+			.append("; isWritable:").append(channel.isWritable());
+		android.util.Log.d("arvinn", "connectServer: " + stringBuffer.toString());
+	}
+
+	public boolean isConnect() {
+		showState();
+		return channel == null ? false : channel.isActive();
+	}
+
+	public void closeFuture() {
+		showState();
 		try {
 			channel.closeFuture().sync();
 		} catch (Exception e) {
-		}
-		isConnect = false;
-	}
-
-	public void graceFully() {
-		try {
-			group.shutdownGracefully().sync();
-		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void reconnect(Throwable e) {
-		//延迟spacingTime秒后进行重连
-		isConnect = false;
+	//退出连接
+	public void shutdownFully() {
+		showState();
+		try {
+			group.shutdownGracefully().sync();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+		}
+	}
+
+	//重新连接
+	public void reConnect() {
+		showState();
+		if (channel != null || !channel.isActive()) {
+			return;
+		}
 		connectServer();
 	}
 
-	public boolean send(String value) {
+	//发送消息
+	public boolean sendMessage(String value) {
+		showState();
 		if (channel == null) {
 			return false;
 		}
 
-		if (!isConnect) {
+		if (!channel.isActive()) {
 			return false;
 		}
 

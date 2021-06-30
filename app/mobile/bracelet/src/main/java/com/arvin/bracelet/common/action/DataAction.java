@@ -5,7 +5,7 @@ import android.content.Context;
 import com.arvin.bracelet.common.manager.DataManager;
 
 
-public class DataAction <T extends DataManager> {
+public abstract class DataAction <T extends DataManager> {
 
 	private Context mContext;
 	public T dataManager;

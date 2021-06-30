@@ -5,6 +5,10 @@ import android.os.PowerManager;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Created by sujinlin on 2021/6/29.
+ */
+
 public class WakeLockHolder {
 	private volatile PowerManager.WakeLock wakeLock;
 	private AtomicInteger wakeLockCounting = new AtomicInteger(0);

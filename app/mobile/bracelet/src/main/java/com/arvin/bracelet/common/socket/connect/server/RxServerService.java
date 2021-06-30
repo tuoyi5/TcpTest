@@ -19,7 +19,6 @@ import io.netty.handler.logging.LoggingHandler;
 
 public class RxServerService {
 
-
 	private final int port;
 
 	private Channel channel;
@@ -31,6 +30,7 @@ public class RxServerService {
 	}
 
 	public void start() throws Exception {
+		Log.d("arvinn","RxServerService start： " + port);
 		bossGroup = new NioEventLoopGroup();
 		workGroup = new NioEventLoopGroup();
 		try {
@@ -64,12 +64,11 @@ public class RxServerService {
 		} catch (Exception e) {
 			Log.e("arvinn", e.getMessage());
 		} finally {
-			Log.d("arvinn","RxServerService stop---： " );
-			//graceFully();
+			Log.d("arvinn","RxServerService end---： " );
 		}
 	}
 
-	public void closeFuture() {
+	private void closeFuture() {
 		try {
 			mChannelFuture.channel().closeFuture().sync(); // 关闭服务器通道
 		} catch (Exception e) {
@@ -78,13 +77,12 @@ public class RxServerService {
 		}
 	}
 
-	public void graceFully(){
+	private void graceFully(){
 		try {
 			workGroup.shutdownGracefully().sync(); // 释放线程池资源
 			bossGroup.shutdownGracefully().sync();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 }
